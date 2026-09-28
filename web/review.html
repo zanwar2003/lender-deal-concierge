@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concierge Review Queue</title>
+<style>
+:root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1b20; --muted:#6f6a73; --line:#e5e1e8; --brand:#4b2a7b;
+  --ok:#166534; --ok-bg:#dcfce7; --warn:#92400e; --warn-bg:#fef3c7; --no:#991b1b; --no-bg:#fee2e2; }
+@media (prefers-color-scheme: dark) { :root { --bg:#131115; --panel:#1d1a21; --ink:#f3f1f5; --muted:#a59fab;
+  --line:#34303a; --brand:#9b7bd1; --ok:#86efac; --ok-bg:#14301f; --warn:#fcd34d; --warn-bg:#3a2d0c;
+  --no:#fca5a5; --no-bg:#3b1515; } }
+* { box-sizing: border-box; }
+a { color: var(--brand); }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 -apple-system,"Segoe UI",Roboto,sans-serif; }
+main { max-width: 900px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 24px; margin: 0; } .sub { color: var(--muted); margin: 4px 0 20px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.pending { color: var(--warn); background: var(--warn-bg); } .sent, .approved { color: var(--ok); background: var(--ok-bg); }
+.rejected { color: var(--no); background: var(--no-bg); }
+.flag { color: var(--warn); background: var(--warn-bg); padding: 8px 10px; border-radius: 8px; font-size: 13px; margin-top: 10px; }
+.meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
+details { margin-top: 10px; } summary { cursor: pointer; color: var(--brand); font-size: 13px; }
+pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font-size: 12px; white-space: pre-wrap; }
+.actions { display: flex; gap: 8px; margin-top: 12px; }
+button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 6px 14px; font: inherit; cursor: pointer; }
+button.primary { background: var(--brand); border-color: var(--brand); color: var(--bg); font-weight: 600; }
+.empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Review queue</h1>
+  <p class="sub">Nothing is written to the CRM until a person approves it. <a href="/">Back to the widget</a></p>
+  <div id="list"></div>
+</main>
+<script>
+const list = document.getElementById("list");
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+async function load() {
+  const items = await (await fetch("/api/queue")).json();
+  list.replaceChildren();
+  if (!items.length) { list.append(el("p", "empty", "No handoffs yet. Chat with the widget to create one.")); return; }
+  for (const it of items) {
+    const c = el("div", "card"), top = el("div", "row");
+    const who = [it.contact.first_name, it.contact.last_name].filter(Boolean).join(" ") || it.contact.email || "Visitor";
+    top.append(el("b", null, `${who} → ${it.team}`), el("span", "pill " + it.status, it.status));
+    c.append(top);
+    const dup = it.duplicate_check;
+    c.append(el("div", "meta", `${it.record.action.replaceAll("_", " ")} in ${it.record.system} · assign to ${it.record.assign_to} · CRM match: ${dup.status}${dup.reason ? " (" + dup.reason + ")" : ""}`));
+    if (it.record.review_flag) c.append(el("div", "flag", it.record.review_flag));
+    const d = el("details"); d.append(el("summary", null, "Draft payload"), el("pre", null, JSON.stringify(it.record.payload, null, 2)));
+    c.append(d);
+    if (it.send_result && it.send_result.ok) c.append(el("div", "meta", it.send_result.dry_run ? `Dry run: would POST ${it.send_result.would_post}` : `Sent (HTTP ${it.send_result.status})`));
+    if (it.status === "pending") {
+      const a = el("div", "actions"), ok = el("button", "primary", "Approve and send"), no = el("button", null, "Reject");
+      ok.onclick = () => decide(it.id, true); no.onclick = () => decide(it.id, false);
+      a.append(ok, no); c.append(a);
+    }
+    list.append(c);
+  }
+}
+async function decide(id, approve) {
+  await fetch("/api/queue/" + id, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ approve, reviewer: "demo reviewer" }) });
+  load();
+}
+load();
+</script>
+</body>
+</html>

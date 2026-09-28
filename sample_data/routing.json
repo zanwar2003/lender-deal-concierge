@@ -1,0 +1,56 @@
+{
+  "footprint_states": [
+    "NY",
+    "NJ",
+    "CT",
+    "PA",
+    "FL"
+  ],
+  "teams": {
+    "relationship": {
+      "name": "Relationship Management",
+      "owner_email": "rm-desk@northgate.example"
+    },
+    "multifamily": {
+      "name": "Multifamily Origination",
+      "owner_email": "multifamily@northgate.example"
+    },
+    "residential": {
+      "name": "Residential Investment",
+      "owner_email": "investor-loans@northgate.example"
+    },
+    "general": {
+      "name": "General Origination",
+      "owner_email": "originations@northgate.example"
+    }
+  },
+  "default_team": "general",
+  "rules": [
+    {
+      "team": "relationship",
+      "reason": "existing borrower",
+      "when": {
+        "existing_borrower": true
+      }
+    },
+    {
+      "team": "residential",
+      "reason": "1-4 unit investor property",
+      "when": {
+        "property_type": [
+          "residential-investor"
+        ]
+      }
+    },
+    {
+      "team": "multifamily",
+      "reason": "multifamily, $10M and up",
+      "when": {
+        "property_type": [
+          "multifamily"
+        ],
+        "min_amount": 10000000
+      }
+    }
+  ]
+}

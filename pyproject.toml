@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lender-deal-concierge"
+version = "0.1.0"
+description = "An approved-answers website assistant for CRE lenders that qualifies visitors, checks the CRM for duplicates, and queues handoffs for human approval."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["langgraph>=0.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+lender-concierge = "concierge.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["concierge*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

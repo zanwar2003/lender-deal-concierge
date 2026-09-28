@@ -1,0 +1,26 @@
+{
+  "salesforce": {
+    "done": true,
+    "records": [
+      {"Id": "0035e00000CN001", "FirstName": "Julia", "LastName": "Rivera",
+       "Email": "julia.rivera@harborpoint.example", "Phone": "(212) 555-0101",
+       "Account": {"Name": "Harbor Point Capital LLC"}, "Owner": {"Email": "d.shah@northgate.example"}},
+      {"Id": "0035e00000CN002", "FirstName": "Robert", "LastName": "Chen",
+       "Email": "rchen@chenproperties.example", "Phone": "718-555-0102",
+       "Account": {"Name": "Chen Properties"}, "Owner": {"Email": "l.moss@northgate.example"}},
+      {"Id": "0035e00000CN003", "FirstName": "Tessa", "LastName": "Grant",
+       "Email": "tgrant@grantstreet.example", "Phone": "(646) 555-0124",
+       "Account": {"Name": "Grant Street Partners LP"}, "Owner": {"Email": "d.shah@northgate.example"}}
+    ]
+  },
+  "hubspot": {
+    "results": [
+      {"id": "901", "properties": {"firstname": "Omar", "lastname": "Haddad",
+        "email": "omar@haddadindustrial.example", "phone": "201-555-0120",
+        "company": "Haddad Industrial", "hubspot_owner_email": "k.ito@northgate.example"}},
+      {"id": "902", "properties": {"firstname": "MARCUS", "lastname": "webb",
+        "email": "Marcus.Webb@WebbBrokerage.example", "phone": null,
+        "company": "Webb Brokerage", "hubspot_owner_email": null}}
+    ]
+  }
+}
